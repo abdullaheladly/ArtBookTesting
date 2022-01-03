@@ -6,36 +6,47 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.abdullah996.artbooktesting.getOrAwaitValue
 import com.google.common.truth.Truth.assertThat
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import javax.inject.Inject
+import javax.inject.Named
 
 
 @SmallTest
 @ExperimentalCoroutinesApi
+@HiltAndroidTest
 class ArtDaoTest {
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
     val exampleArt = Art("Mona Lisa","Da Vinci",1700,"test.com",1)
     val exampleArt2 = Art("Mona Lisa","Da Vinci",1700,"test.com",2)
     val exampleArt3 = Art("Mona Lisa","Da Vinci",1700,"test.com",3)
 
     private lateinit var dao : ArtDao
-    private lateinit var database: ArtDatabase
+    @Inject
+    @Named("testDatabase")
+    lateinit var database: ArtDatabase
 
     @Before
     fun setup() {
         //create database in Ram so we just use it for testing
-        database = Room.inMemoryDatabaseBuilder(
+        /*database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),ArtDatabase::class.java)
             .allowMainThreadQueries() //this is a test case, we don't want other thread pools
-            .build()
+            .build()*/
 
-
+        hiltRule.inject()
         dao = database.artDao()
     }
     @After
